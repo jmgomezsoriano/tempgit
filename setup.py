@@ -56,5 +56,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.7',
-    install_requires=['GitPython~=3.1.29', 'mysmallutils>=1.1.4,<2.0']
+    install_requires=['GitPython~=3.1.29', 'mysmallutils>=1.1.6,<2.0']
 )
