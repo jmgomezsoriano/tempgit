@@ -1,2 +1,2 @@
 GitPython~=3.1.29
-mysmallutils>=1.1.5,<2.0
+mysmallutils>=1.1.6,<2.0
