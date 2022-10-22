@@ -3,7 +3,7 @@ from typing import Union, Optional, Tuple, List, Callable
 from mysutils.file import write_file
 from mysutils.tmp import removable_tmp, RemovableTemp, Removable
 from git import Repo
-from git.types import Commit_ish
+from git.types import Commit_ish, PathLike
 from git.util import Actor, RemoteProgress, IterableList
 from git.objects import UpdateProgress
 from git.objects import Commit
@@ -35,8 +35,8 @@ class TemporalGitRepository(object):
         return self._branch
 
     def __init__(self,
-                 repository: Union[str, os.PathLike[str], os.PathLike],
-                 repo_dir: Union[str, os.PathLike[str], os.PathLike] = None,
+                 repository: Union[str, PathLike[str], os.PathLike],
+                 repo_dir: Union[str, PathLike[str], os.PathLike] = None,
                  branch: str = None,
                  ssh_key: str = None,
                  remove: bool = True) -> None:
@@ -55,7 +55,7 @@ class TemporalGitRepository(object):
         self._repository = self.clone(self.repo_dir, branch, ssh_key)
 
     def clone(self,
-              repo_dir: Union[str, os.PathLike[str], os.PathLike],
+              repo_dir: Union[str, PathLike[str], PathLike],
               branch: str = None,
               ssh_key: str = None) -> Repo:
         """ Clone the repository into a local directory using, optionally a SSH key.
@@ -77,7 +77,7 @@ class TemporalGitRepository(object):
                 self.close()
                 raise e
 
-    def add(self, *files: Union[str, os.PathLike, bytes]) -> Union[str, bytes, Tuple[int, Union[str, bytes], str]]:
+    def add(self, *files: Union[str, PathLike, bytes]) -> Union[str, bytes, Tuple[int, Union[str, bytes], str]]:
         """ Add files to a commit.
 
         :param files: The files to commit.
