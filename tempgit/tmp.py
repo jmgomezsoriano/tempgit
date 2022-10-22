@@ -35,8 +35,8 @@ class TemporalGitRepository(object):
         return self._branch
 
     def __init__(self,
-                 repository: Union[str, PathLike[str], os.PathLike],
-                 repo_dir: Union[str, PathLike[str], os.PathLike] = None,
+                 repository: Union[str, PathLike[str], PathLike],
+                 repo_dir: Union[str, PathLike[str], PathLike] = None,
                  branch: str = None,
                  ssh_key: str = None,
                  remove: bool = True) -> None:
