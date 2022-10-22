@@ -3,10 +3,11 @@ from typing import Union, Optional, Tuple, List, Callable
 from mysutils.file import write_file
 from mysutils.tmp import removable_tmp, RemovableTemp, Removable
 from git import Repo
-from git.types import Commit_ish, PathLike
+from git.types import Commit_ish
 from git.util import Actor, RemoteProgress, IterableList
 from git.objects import UpdateProgress
 from git.objects import Commit
+from os import PathLike
 import os
 
 
@@ -35,8 +36,8 @@ class TemporalGitRepository(object):
         return self._branch
 
     def __init__(self,
-                 repository: Union[str, PathLike[str], PathLike],
-                 repo_dir: Union[str, PathLike[str], PathLike] = None,
+                 repository: str,
+                 repo_dir: Union[str, PathLike] = None,
                  branch: str = None,
                  ssh_key: str = None,
                  remove: bool = True) -> None:
@@ -54,10 +55,7 @@ class TemporalGitRepository(object):
         self._repository_url = repository
         self._repository = self.clone(self.repo_dir, branch, ssh_key)
 
-    def clone(self,
-              repo_dir: Union[str, PathLike[str], PathLike],
-              branch: str = None,
-              ssh_key: str = None) -> Repo:
+    def clone(self, repo_dir: Union[str, PathLike], branch: str = None, ssh_key: str = None) -> Repo:
         """ Clone the repository into a local directory using, optionally a SSH key.
 
         :param repo_dir: The local reopository directory.
@@ -105,7 +103,8 @@ class TemporalGitRepository(object):
         return self._repository.index.commit(message, parent_commits, head, author, committer, author_date,
                                              commit_date, skip_hooks)
 
-    def push(self, refspec: Union[str, List[str], None] = None,
+    def push(self,
+             refspec: Union[str, List[str], None] = None,
              progress: Union[RemoteProgress, UpdateProgress, Callable, None] = None,
              kill_after_timeout: Union[None, float] = None,
              **kwargs) -> IterableList:
