@@ -8,6 +8,7 @@ from git.util import Actor, RemoteProgress, IterableList
 from git.objects import UpdateProgress
 from git.objects import Commit
 from os import PathLike
+from git.diff import DiffIndex
 import os
 
 
@@ -131,7 +132,11 @@ class TemporalGitRepository(object):
 
     def has_changes(self) -> bool:
         """ Check whether the local repository has any changes or not."""
-        return bool(self._repository.head.commit.diff())
+        return bool(self.changes())
+
+    def changes(self) -> DiffIndex:
+        """ Get the diff index of the local repository."""
+        return self._repository.head.commit.diff(create_patch=True)
 
     def __enter__(self):
         return self
