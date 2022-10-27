@@ -1,6 +1,6 @@
 from typing import Union, Optional, Tuple, List, Callable
 
-from mysutils.file import write_file
+from mysutils.file import write_file, cat
 from mysutils.tmp import removable_tmp, RemovableTemp, Removable
 from git import Repo
 from git.types import Commit_ish
@@ -54,27 +54,36 @@ class TemporalGitRepository(object):
         self._branch = branch
         self._remove = remove
         self._repository_url = repository
-        self._repository = self.clone(self.repo_dir, branch, ssh_key)
+        self._key_file = self.__create_key_file(ssh_key)
+        self._repository = self.clone(self.repo_dir)
 
-    def clone(self, repo_dir: Union[str, PathLike], branch: str = None, ssh_key: str = None) -> Repo:
+    @staticmethod
+    def __create_key_file(ssh_key) -> Optional[PathLike]:
+        if ssh_key:
+            key_file = removable_tmp()
+            descriptor = os.open(key_file[0], os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            write_file(descriptor, ssh_key)
+            return key_file
+        return None
+
+    def clone(self, repo_dir: Union[str, PathLike]) -> Repo:
         """ Clone the repository into a local directory using, optionally a SSH key.
 
         :param repo_dir: The local reopository directory.
         :param branch: The branch to clone, if it is not given, the master or main branch is used.
-        :param ssh_key: The SSH key value (not a file). By default, the process will use the system default SSH KEY.
         :return: The git repository.
         """
-        kwargs = {'branch': branch} if branch else {}
-        with removable_tmp() as key_file:
-            if ssh_key is not None:
-                descriptor = os.open(key_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-                write_file(descriptor, ssh_key)
-                kwargs['env'] = {'GIT_SSH_COMMAND': f'ssh -i {key_file} -o StrictHostKeyChecking=no'}
-            try:
-                return Repo.clone_from(self._repository_url, repo_dir, **kwargs)
-            except Exception as e:
-                self.close()
-                raise e
+        try:
+            return Repo.clone_from(self._repository_url, repo_dir, **self.__get_git_parameters())
+        except Exception as e:
+            self.close()
+            raise e
+
+    def __get_git_parameters(self) -> dict:
+        kwargs = {'branch': self.branch} if self.branch else {}
+        if self._key_file:
+            kwargs['env'] = {'GIT_SSH_COMMAND': f'ssh -i {self._key_file[0]} -o StrictHostKeyChecking=no'}
+        return kwargs
 
     def add(self, *files: Union[str, PathLike, bytes]) -> Union[str, bytes, Tuple[int, Union[str, bytes], str]]:
         """ Add files to a commit.
@@ -128,7 +137,11 @@ class TemporalGitRepository(object):
             bit set in their flags.
             If the operation fails completely, the length of the returned IterableList will be 0.
         """
-        return self._repository.git.push(refspec, progress, kill_after_timeout, **kwargs)
+        try:
+            return self._repository.git.push(refspec, progress, kill_after_timeout, **kwargs)
+        except Exception as e:
+            self.close()
+            raise e
 
     def has_changes(self) -> bool:
         """ Check whether the local repository has any changes or not."""
@@ -148,3 +161,5 @@ class TemporalGitRepository(object):
         """ Close the local repository and if the attribute remote is set to True (by defalt), then remove it. """
         if self._remove:
             self._repo_dir.close()
+        if self._key_file:
+            self._key_file.close()
