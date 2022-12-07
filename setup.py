@@ -40,7 +40,7 @@ setuptools.setup(
         'prepublish': PrepublishCommand,
     },
     name='tempgit',
-    version='0.0.11',
+    version='0.0.12',
     url='https://github.com/jmgomezsoriano/tempgit',
     license='LGPL2',
     author='José Manuel Gómez Soriano',

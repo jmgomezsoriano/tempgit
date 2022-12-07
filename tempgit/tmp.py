@@ -41,7 +41,8 @@ class TemporalGitRepository(object):
                  repo_dir: Union[str, PathLike] = None,
                  branch: str = None,
                  ssh_key: str = None,
-                 remove: bool = True) -> None:
+                 remove: bool = True,
+                 single_branch: bool = False) -> None:
         """  Create a temporal copy of a Git repository.
 
         :param repository: The url to the Git repository.
@@ -56,6 +57,7 @@ class TemporalGitRepository(object):
         self._repository_url = repository
         self._key_file = self.__create_key_file(ssh_key)
         self._repository = self.clone(self.repo_dir)
+        self._single_branch = single_branch
 
     @staticmethod
     def __create_key_file(ssh_key) -> Optional[PathLike]:
@@ -80,7 +82,7 @@ class TemporalGitRepository(object):
             raise e
 
     def __get_git_parameters(self) -> dict:
-        kwargs = {'branch': self.branch} if self.branch else {}
+        kwargs = {'branch': self.branch, 'single-branch': self._single_branch} if self.branch else {}
         if self._key_file:
             kwargs['env'] = {'GIT_SSH_COMMAND': f'ssh -i {self._key_file[0]} -o StrictHostKeyChecking=no'}
         return kwargs
