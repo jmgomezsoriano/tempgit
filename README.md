@@ -14,11 +14,16 @@ without maintaining a local copy of the repository. The syntax is:
 from tempgit import TemporalGitRepository
 
 # Using "with" command. The repository will be removed automatically after the "with" command finishes 
-with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key) as repo:
+with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, remove=True, single_branch=False) as repo:
     repo.add(...)
     repo.commit(...)
     repo.push()
 ```
+
+Where **repository** is the Git repository URL, the **branch** the branch name, 
+**ssh_key** the private key to connect with the repository,
+**remove** if the local copy of the repository will be removed,
+**single_branch** True to download only the selected branch.
 
 For example:
 
@@ -26,20 +31,18 @@ For example:
 from tempgit import TemporalGitRepository
 
 # Using "with" command. The repository will be removed automatically after the "with" command finishes 
-with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key) as repo:
+with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, single_branch=True) as repo:
     repo.add(file1, file2, file3, ...)  # Add the modifications
     repo.commit('Message')  # Commit the changes
     repo.push()  # Push the commit
 
 # With close(). The repository will be removed when you close the object.
-repo = TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key):
+repo = TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, single_branch=True):
 repo.add(file1, file2, file3, ...)
 repo.commit('Message')
 repo.push()
 repo.close()
 ```
-
-Yo can avoid the 
 
 # Git monitor<a id="git-monitor" name="git-monitor"></a>
 
