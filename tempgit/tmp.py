@@ -36,19 +36,26 @@ class TemporalGitRepository(object):
         """ The branch of the Git repository to clone. """
         return self._branch
 
+    @property
+    def single_branch(self) -> bool:
+        """ Whether the Git repository downloads a single branch or all the repository. """
+        return self._single_branch
+
     def __init__(self,
                  repository: str,
                  repo_dir: Union[str, PathLike] = None,
                  branch: str = None,
                  ssh_key: str = None,
-                 remove: bool = True,
-                 single_branch: bool = False) -> None:
+                 single_branch: bool = True,
+                 remove: bool = True) -> None:
         """  Create a temporal copy of a Git repository.
 
         :param repository: The url to the Git repository.
         :param repo_dir: The local path to the local copy. By default, it will create a temporal folder.
         :param branch: The branch to clone, if it is not given, the master or main branch is used.
         :param ssh_key: The SSH key value (not a file). By default, the process will use the system default SSH KEY.
+        :param single_branch: Whether to clone a single branch or all the repository.
+           By default, only the branch, it is faster.
         :param remove: If remove is False, then the temporal folder will not be removed automatically.
         """
         self._repo_dir = RemovableTemp(True) if repo_dir is None else Removable(repo_dir)
@@ -56,8 +63,8 @@ class TemporalGitRepository(object):
         self._remove = remove
         self._repository_url = repository
         self._key_file = self.__create_key_file(ssh_key)
-        self._repository = self.clone(self.repo_dir)
         self._single_branch = single_branch
+        self._repository = self.clone(self.repo_dir)
 
     @staticmethod
     def __create_key_file(ssh_key) -> Optional[PathLike]:
@@ -82,7 +89,7 @@ class TemporalGitRepository(object):
             raise e
 
     def __get_git_parameters(self) -> dict:
-        kwargs = {'branch': self.branch, 'single-branch': self._single_branch} if self.branch else {}
+        kwargs = {'branch': self.branch, 'single-branch': self.single_branch} if self.branch else {}
         if self._key_file:
             kwargs['env'] = {'GIT_SSH_COMMAND': f'ssh -i {self._key_file[0]} -o StrictHostKeyChecking=no'}
         return kwargs

@@ -31,13 +31,13 @@ For example:
 from tempgit import TemporalGitRepository
 
 # Using "with" command. The repository will be removed automatically after the "with" command finishes 
-with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, single_branch=True) as repo:
+with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key) as repo:
     repo.add(file1, file2, file3, ...)  # Add the modifications
     repo.commit('Message')  # Commit the changes
     repo.push()  # Push the commit
 
 # With close(). The repository will be removed when you close the object.
-repo = TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, single_branch=True):
+repo = TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key):
 repo.add(file1, file2, file3, ...)
 repo.commit('Message')
 repo.push()
