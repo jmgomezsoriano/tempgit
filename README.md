@@ -14,7 +14,7 @@ without maintaining a local copy of the repository. The syntax is:
 from tempgit import TemporalGitRepository
 
 # Using "with" command. The repository will be removed automatically after the "with" command finishes 
-with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, remove=True, single_branch=False) as repo:
+with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, single_branch=False, depth=1, remove=True) as repo:
     repo.add(...)
     repo.commit(...)
     repo.push()
@@ -22,8 +22,9 @@ with TemporalGitRepository(repository, branch=branch, ssh_key=ssh_key, remove=Tr
 
 Where **repository** is the Git repository URL, the **branch** the branch name, 
 **ssh_key** the private key to connect with the repository,
-**remove** if the local copy of the repository will be removed,
-**single_branch** True to download only the selected branch.
+**single_branch** True to download only the selected branch,
+**depth** create a shallow clone of that depth,
+and **remove** if the local copy of the repository will be removed.
 
 For example:
 

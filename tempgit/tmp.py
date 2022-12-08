@@ -41,12 +41,18 @@ class TemporalGitRepository(object):
         """ Whether the Git repository downloads a single branch or all the repository. """
         return self._single_branch
 
+    @property
+    def depth(self) -> int:
+        """ Create a shallow clone of that depth. """
+        return self._depth
+
     def __init__(self,
                  repository: str,
                  repo_dir: Union[str, PathLike] = None,
                  branch: str = None,
                  ssh_key: str = None,
                  single_branch: bool = True,
+                 depth: int = 0,
                  remove: bool = True) -> None:
         """  Create a temporal copy of a Git repository.
 
@@ -55,7 +61,8 @@ class TemporalGitRepository(object):
         :param branch: The branch to clone, if it is not given, the master or main branch is used.
         :param ssh_key: The SSH key value (not a file). By default, the process will use the system default SSH KEY.
         :param single_branch: Whether to clone a single branch or all the repository.
-           By default, only the branch, it is faster.
+           By default, only the specified branch, it is faster.
+        :param depth: Create a shallow clone of that depth. By default, 0.
         :param remove: If remove is False, then the temporal folder will not be removed automatically.
         """
         self._repo_dir = RemovableTemp(True) if repo_dir is None else Removable(repo_dir)
@@ -64,6 +71,7 @@ class TemporalGitRepository(object):
         self._repository_url = repository
         self._key_file = self.__create_key_file(ssh_key)
         self._single_branch = single_branch
+        self._depth = depth
         self._repository = self.clone(self.repo_dir)
 
     @staticmethod
@@ -89,7 +97,9 @@ class TemporalGitRepository(object):
             raise e
 
     def __get_git_parameters(self) -> dict:
-        kwargs = {'branch': self.branch, 'single-branch': self.single_branch} if self.branch else {}
+        kwargs: dict = {'branch': self.branch, 'single-branch': self.single_branch} if self.branch else {}
+        if self.depth > 0:
+            kwargs['depth'] = self.depth
         if self._key_file:
             kwargs['env'] = {'GIT_SSH_COMMAND': f'ssh -i {self._key_file[0]} -o StrictHostKeyChecking=no'}
         return kwargs
