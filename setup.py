@@ -1,4 +1,7 @@
+import glob
 import os
+from shutil import rmtree
+
 import setuptools
 
 with open("README.md", "r", encoding="utf-8") as fh:
@@ -16,7 +19,10 @@ class CleanCommand(setuptools.Command):
         pass
 
     def run(self):
-        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
+        rmtree('build', ignore_errors=True)
+        rmtree('dist', ignore_errors=True)
+        for file in glob.glob('*.egg-info'):
+            rmtree(file)
 
 
 class PrepublishCommand(setuptools.Command):
@@ -40,7 +46,7 @@ setuptools.setup(
         'prepublish': PrepublishCommand,
     },
     name='tempgit',
-    version='0.0.15',
+    version='0.1.1',
     url='https://github.com/jmgomezsoriano/tempgit',
     license='LGPL2',
     author='José Manuel Gómez Soriano',
@@ -55,6 +61,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.7',
-    install_requires=['GitPython~=3.1.29', 'mysmallutils>=1.1.6,<2.0']
+    python_requires='>=3.9,<4',
+    install_requires=['GitPython~=3.1.29', 'mysmallutils>=2.0.2,<2.1']
 )
